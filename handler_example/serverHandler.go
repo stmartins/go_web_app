@@ -29,6 +29,6 @@ func main() {
 	th = timeHandler(time.RFC3339)
 	mux.Handle("/time/rfc3339", th)
 
-	log.Println("listening on port 8080...")
+	log.Println("listening on port :8080...")
 	http.ListenAndServe(":8080", mux)
 }
