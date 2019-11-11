@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 	// "os"
@@ -13,12 +14,22 @@ type myHandler struct {
 	mu sync.RWMutex
 }
 
+var tpl *template.Template
+
+func init() {
+	tpl = template.Must(template.ParseGlob("templates/*.html"))
+}
+
 func (hd *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	// fmt.Println(r)
+
 	path := r.URL.Path[1:]
 	fmt.Println(path)
 	data, err := ioutil.ReadFile(string(path))
 
 	hd.mu.Lock()
+	defer hd.mu.Unlock()
 
 	if err == nil {
 		var contentType string
@@ -36,7 +47,6 @@ func (hd *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			contentType = "text/plain"
 		}
-		// fmt.Println(contentType)
 
 		w.Header().Add("Content-Type", contentType)
 		w.Write(data)
@@ -45,15 +55,41 @@ func (hd *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("404 Page " + http.StatusText(404)))
 	}
 
-	hd.mu.Unlock()
+}
+
+// func idx(w http.ResponseWriter, r *http.Request) {
+// 	err := tpl.ExecuteTemplate(w, "carroussel.html", nil)
+// 	path := r.URL.Path[1:]
+// 	fmt.Println(path)
+//
+// 	if err != nil {
+// 		fmt.Println("error la")
+// 		http.Error(w, "internal server error ", http.StatusInternalServerError)
+// 	}
+// }
+
+func test(w http.ResponseWriter, r *http.Request) {
+	err := tpl.ExecuteTemplate(w, "test.html", nil)
+
+	if err != nil {
+		fmt.Println("error")
+		http.Error(w, "internal server error ", http.StatusInternalServerError)
+	}
 }
 
 func main() {
-	// log.Println("ENV: ", os.Environ())
+
 	mx := http.NewServeMux()
+
 	fmt.Println("listening 8080...")
 
 	mx.Handle("/", new(myHandler))
+
+	// mx.HandleFunc("/", idx)
+
+	// rh := http.RedirectHandler("http://localhost:8080/templates/test.html", 307)
+	mx.HandleFunc("/test", test)
+
 	http.ListenAndServe(":8080", mx)
 
 }
