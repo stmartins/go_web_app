@@ -57,16 +57,16 @@ func (hd *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// func idx(w http.ResponseWriter, r *http.Request) {
-// 	err := tpl.ExecuteTemplate(w, "carroussel.html", nil)
-// 	path := r.URL.Path[1:]
-// 	fmt.Println(path)
-//
-// 	if err != nil {
-// 		fmt.Println("error la")
-// 		http.Error(w, "internal server error ", http.StatusInternalServerError)
-// 	}
-// }
+func idx(w http.ResponseWriter, r *http.Request) {
+	err := tpl.ExecuteTemplate(w, "carroussel.html", nil)
+	path := r.URL.Path[1:]
+	fmt.Println(path)
+
+	if err != nil {
+		fmt.Println("error la")
+		http.Error(w, "internal server error ", http.StatusInternalServerError)
+	}
+}
 
 func test(w http.ResponseWriter, r *http.Request) {
 	err := tpl.ExecuteTemplate(w, "test.html", nil)
@@ -85,7 +85,7 @@ func main() {
 
 	mx.Handle("/", new(myHandler))
 
-	// mx.HandleFunc("/", idx)
+	mx.HandleFunc("/index.html", idx)
 
 	// rh := http.RedirectHandler("http://localhost:8080/templates/test.html", 307)
 	mx.HandleFunc("/test", test)
